@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"EverythingSuckz/fsb/config"
-	"EverythingSuckz/fsb/bot"
 
 	"github.com/spf13/cobra"
 )
