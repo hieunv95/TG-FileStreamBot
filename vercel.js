@@ -5,6 +5,6 @@
     }
   },
   "rewrites": [
-    { "source": "/.*", "destination": "/api/.*" }
+    { "source": "/:path*", "destination": "/api/:path*" }
   ]
 }
