@@ -1,120 +1,91 @@
 package handler
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/zelenin/go-tdlib/client"
 )
 
-const telegramAPI = "https://api.telegram.org/bot"
+// Lấy API ID, Hash và Bot Token từ biến môi trường
+var (
+	apiID   = os.Getenv("API_ID")
+	apiHash = os.Getenv("API_HASH")
+	botToken = os.Getenv("BOT_TOKEN")
+	vercelDomain = os.Getenv("HOST") // VD: "your-vercel-app.vercel.app"
+)
 
-type TelegramUpdate struct {
+// Cấu trúc JSON nhận từ Webhook
+type Update struct {
 	Message struct {
-		Chat struct {
-			ID   int64  `json:"id"`
-			Type string `json:"type"` // "private", "group", "supergroup", "channel"
-		} `json:"chat"`
-		ForwardFrom struct {
-			ID int64 `json:"id"`
-		} `json:"forward_from"`
 		Document struct {
 			FileID string `json:"file_id"`
 		} `json:"document"`
+		Chat struct {
+			ID int64 `json:"id"`
+		} `json:"chat"`
 	} `json:"message"`
 }
 
-func getFileDirectLink(fileID string) (string, error) {
-	botToken := os.Getenv("BOT_TOKEN")
-	if botToken == "" {
-		return "", fmt.Errorf("missing BOT_TOKEN")
+// Gửi tin nhắn chứa direct link
+func sendMessage(chatID int64, text string) {
+	url := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", botToken)
+
+	message := map[string]interface{}{
+		"chat_id": chatID,
+		"text":    text,
 	}
 
-	// Lấy đường dẫn file từ Telegram API
-	url := fmt.Sprintf("%s%s/getFile?file_id=%s", telegramAPI, botToken, fileID)
-	resp, err := http.Get(url)
+	body, _ := json.Marshal(message)
+	_, err := http.Post(url, "application/json", bytes.NewBuffer(body))
 	if err != nil {
-		return "", err
+		log.Println("Lỗi gửi tin nhắn:", err)
 	}
-	defer resp.Body.Close()
-
-	var result struct {
-		OK     bool `json:"ok"`
-		Result struct {
-			FilePath string `json:"file_path"`
-		} `json:"result"`
-	}
-
-	body, _ := io.ReadAll(resp.Body)
-	log.Println("Telegram getFile response:", string(body)) // Debug API response
-
-	if err := json.Unmarshal(body, &result); err != nil || !result.OK {
-		return "", fmt.Errorf("failed to get file path: %s", string(body))
-	}
-
-	// Trả về link trực tiếp
-	return fmt.Sprintf("https://api.telegram.org/file/bot%s/%s", botToken, result.Result.FilePath), nil
 }
 
-func Handler(w http.ResponseWriter, r *http.Request) {
-	// Đọc toàn bộ request body để debug
-	body, err := io.ReadAll(r.Body)
+// Xử lý Webhook từ Telegram
+func WebhookHandler(w http.ResponseWriter, r *http.Request) {
+	var update Update
+	err := json.NewDecoder(r.Body).Decode(&update)
 	if err != nil {
-		log.Println("Failed to read request body:", err)
+		log.Println("Lỗi decode JSON:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// Kiểm tra nếu message rỗng
+	if update.Message.Chat.ID == 0 {
+		log.Println("Không có message")
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	var update TelegramUpdate
-	if err := json.Unmarshal(body, &update); err != nil {
-		log.Println("Invalid request JSON:", err)
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
-	// ✅ Bỏ qua tin nhắn từ nhóm, kênh
+	// Kiểm tra chỉ lắng nghe private chat
 	if update.Message.Chat.Type != "private" {
-		log.Println("Ignored non-private message from:", update.Message.Chat.Type)
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	log.Println("Received request body:", string(body)) // Debug Request Body
-
-	// ✅ Kiểm tra file forward đúng format không
-	if update.Message.Document.FileID == "" || update.Message.ForwardFrom.ID == 0 {
-		log.Println("No forwarded file found:", update)
+	// Kiểm tra có file hay không
+	if update.Message.Document.FileID == "" {
+		log.Println("Không có file trong tin nhắn")
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	// Lấy link tải trực tiếp
-	fileURL, err := getFileDirectLink(update.Message.Document.FileID)
-	if err != nil {
-		log.Println("Error getting file URL:", err)
-		w.WriteHeader(http.StatusOK)
-		return
-	}
+	chatID := update.Message.Chat.ID
+	fileID := update.Message.Document.FileID
 
-	// Gửi link về Telegram
-	botToken := os.Getenv("BOT_TOKEN")
-	sendURL := fmt.Sprintf("%s%s/sendMessage?chat_id=%d&text=%s", telegramAPI, botToken, update.Message.Chat.ID, fileURL)
-	resp, err := http.Get(sendURL)
-	if err != nil {
-		log.Println("Failed to send message:", err)
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-	defer resp.Body.Close()
+	// Tạo direct link với domain của Vercel
+	directLink := fmt.Sprintf("https://%s/file/%s", vercelDomain, fileID)
 
-	// Debug Telegram sendMessage response
-	body, _ = io.ReadAll(resp.Body)
-	log.Println("Telegram sendMessage response:", string(body))
-
-	// Phản hồi Vercel (luôn HTTP 200)
-	w.Header().Set("Content-Type", "application/json")
+	// Gửi direct link cho người dùng
+	sendMessage(chatID, "Direct link: "+directLink)
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"file_url": fileURL})
 }
+
