@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 )
@@ -15,9 +16,9 @@ type TelegramUpdate struct {
 		Chat struct {
 			ID int64 `json:"id"`
 		} `json:"chat"`
-		ForwardFromChat struct {
+		ForwardFrom struct {
 			ID int64 `json:"id"`
-		} `json:"forward_from_chat"`
+		} `json:"forward_from"`
 		Document struct {
 			FileID string `json:"file_id"`
 		} `json:"document"`
@@ -27,7 +28,7 @@ type TelegramUpdate struct {
 func getFileDirectLink(fileID string) (string, error) {
 	botToken := os.Getenv("BOT_TOKEN")
 	if botToken == "" {
-		return "", fmt.Errorf("missing bot token")
+		return "", fmt.Errorf("missing BOT_TOKEN")
 	}
 
 	// Lấy đường dẫn file từ Telegram API
@@ -45,8 +46,8 @@ func getFileDirectLink(fileID string) (string, error) {
 		} `json:"result"`
 	}
 
-	body, _ := io.ReadAll(resp.Body) // Debug API response
-	fmt.Println("Telegram getFile response:", string(body))
+	body, _ := io.ReadAll(resp.Body)
+	log.Println("Telegram getFile response:", string(body)) // Debug API response
 
 	if err := json.Unmarshal(body, &result); err != nil || !result.OK {
 		return "", fmt.Errorf("failed to get file path: %s", string(body))
@@ -60,30 +61,31 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	// Đọc toàn bộ request body để debug
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "Failed to read request body", http.StatusInternalServerError)
+		log.Println("Failed to read request body:", err)
+		w.WriteHeader(http.StatusOK)
 		return
 	}
-	fmt.Println("Received request body:", string(body))
+	log.Println("Received request body:", string(body)) // Debug Request Body
 
 	var update TelegramUpdate
 	if err := json.Unmarshal(body, &update); err != nil {
-		fmt.Println("Invalid request JSON")
-		http.Error(w, fmt.Sprintf("Invalid request JSON: %v\nBody: %s", err, string(body)), http.StatusBadRequest)
+		log.Println("Invalid request JSON:", err)
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	// Kiểm tra tin nhắn có chứa file không
-	if update.Message.Document.FileID == "" || update.Message.ForwardFromChat.ID == 0 {
-		fmt.Println("No forwarded file found")
-		http.Error(w, fmt.Sprintf("No forwarded file found\nReceived: %+v", update), http.StatusBadRequest)
+	// ✅ Kiểm tra file forward đúng format không
+	if update.Message.Document.FileID == "" || update.Message.ForwardFrom.ID == 0 {
+		log.Println("No forwarded file found:", update)
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 
 	// Lấy link tải trực tiếp
 	fileURL, err := getFileDirectLink(update.Message.Document.FileID)
 	if err != nil {
-		fmt.Println("Error getFileDirectLink")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Println("Error getting file URL:", err)
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 
@@ -92,15 +94,18 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	sendURL := fmt.Sprintf("%s%s/sendMessage?chat_id=%d&text=%s", telegramAPI, botToken, update.Message.Chat.ID, fileURL)
 	resp, err := http.Get(sendURL)
 	if err != nil {
-		fmt.Println("Failed to send message:", err)
+		log.Println("Failed to send message:", err)
+		w.WriteHeader(http.StatusOK)
+		return
 	}
 	defer resp.Body.Close()
 
 	// Debug Telegram sendMessage response
 	body, _ = io.ReadAll(resp.Body)
-	fmt.Println("Telegram sendMessage response:", string(body))
+	log.Println("Telegram sendMessage response:", string(body))
 
-	// Phản hồi Vercel
+	// Phản hồi Vercel (luôn HTTP 200)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"file_url": fileURL})
 }
