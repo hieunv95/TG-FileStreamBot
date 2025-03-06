@@ -4,7 +4,7 @@
       "GO_BUILD_FLAGS": "-ldflags '-s -w'"
     }
   },
-  "routes": [
-    { "src": "/.*", "dest": "/api/index.go" }
+  "rewrites": [
+    { "source": "/.*", "destination": "/api/.*" }
   ]
 }
