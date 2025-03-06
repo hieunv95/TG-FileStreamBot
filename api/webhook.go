@@ -14,7 +14,8 @@ const telegramAPI = "https://api.telegram.org/bot"
 type TelegramUpdate struct {
 	Message struct {
 		Chat struct {
-			ID int64 `json:"id"`
+			ID   int64  `json:"id"`
+			Type string `json:"type"` // "private", "group", "supergroup", "channel"
 		} `json:"chat"`
 		ForwardFrom struct {
 			ID int64 `json:"id"`
@@ -65,7 +66,6 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		return
 	}
-	log.Println("Received request body:", string(body)) // Debug Request Body
 
 	var update TelegramUpdate
 	if err := json.Unmarshal(body, &update); err != nil {
@@ -73,6 +73,15 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		return
 	}
+
+	// ✅ Bỏ qua tin nhắn từ nhóm, kênh
+	if update.Message.Chat.Type != "private" {
+		log.Println("Ignored non-private message from:", update.Message.Chat.Type)
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	log.Println("Received request body:", string(body)) // Debug Request Body
 
 	// ✅ Kiểm tra file forward đúng format không
 	if update.Message.Document.FileID == "" || update.Message.ForwardFrom.ID == 0 {
