@@ -1,7 +1,7 @@
 package cache
 
 import (
-	"EverythingSuckz/fsb/internal/types"
+	"EverythingSuckz/fsb/lib/types"
 	"bytes"
 	"encoding/gob"
 	"sync"

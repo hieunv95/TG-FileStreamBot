@@ -2,7 +2,7 @@ package bot
 
 import (
 	"EverythingSuckz/fsb/config"
-	"EverythingSuckz/fsb/internal/commands"
+	"EverythingSuckz/fsb/lib/commands"
 	"context"
 	"time"
 

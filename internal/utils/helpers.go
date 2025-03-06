@@ -2,8 +2,8 @@ package utils
 
 import (
 	"EverythingSuckz/fsb/config"
-	"EverythingSuckz/fsb/internal/cache"
-	"EverythingSuckz/fsb/internal/types"
+	"EverythingSuckz/fsb/lib/cache"
+	"EverythingSuckz/fsb/lib/types"
 	"context"
 	"errors"
 	"fmt"

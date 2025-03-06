@@ -2,7 +2,7 @@ package commands
 
 import (
 	"EverythingSuckz/fsb/config"
-	"EverythingSuckz/fsb/internal/utils"
+	"EverythingSuckz/fsb/lib/utils"
 
 	"github.com/celestix/gotgproto/dispatcher"
 	"github.com/celestix/gotgproto/dispatcher/handlers"

@@ -1,12 +1,12 @@
-package main
+package handler
 
 import (
 	"EverythingSuckz/fsb/config"
-	"EverythingSuckz/fsb/internal/bot"
-	"EverythingSuckz/fsb/internal/cache"
-	"EverythingSuckz/fsb/internal/routes"
-	"EverythingSuckz/fsb/internal/types"
-	"EverythingSuckz/fsb/internal/utils"
+	"EverythingSuckz/fsb/lib/bot"
+	"EverythingSuckz/fsb/lib/cache"
+	"EverythingSuckz/fsb/lib/routes"
+	"EverythingSuckz/fsb/lib/types"
+	"EverythingSuckz/fsb/lib/utils"
 	"fmt"
 	"net/http"
 	"time"

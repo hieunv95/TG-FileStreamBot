@@ -2,7 +2,7 @@ package utils
 
 import (
 	"EverythingSuckz/fsb/config"
-	"EverythingSuckz/fsb/internal/types"
+	"EverythingSuckz/fsb/lib/types"
 )
 
 func PackFile(fileName string, fileSize int64, mimeType string, fileID int64) string {
