@@ -141,7 +141,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		http.Error(w, fmt.Sprintf("Failed to start bot: %v", err), http.StatusInternalServerError)
-		return os.Exit(1)
+		return
 	}
 
 	// Trả về JSON response
