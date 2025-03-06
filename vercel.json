@@ -4,6 +4,16 @@
       "GO_BUILD_FLAGS": "-ldflags '-s -w'"
     }
   },
+  "builds": [
+    {
+      "src": "build.sh",
+      "use": "@vercel/go",
+      "config": { "buildCommand": "sh build.sh" }
+    }
+  ],
+  "routes": [
+    { "src": "/.*", "dest": "/app/fsb" }
+  ],
   "rewrites": [
     { "source": "/", "destination": "/api/" },
     { "source": "/:path*", "destination": "/api/:path*" }
