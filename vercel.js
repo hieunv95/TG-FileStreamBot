@@ -1,14 +1,7 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "build.sh",
-        "use": "@vercel/go",
-        "config": { "buildCommand": "sh build.sh" }
-      }
-    ],
-    "routes": [
-      { "src": "/.*", "dest": "/app/fsb" }
-    ]
+  "build": {
+    "env": {
+      "GO_BUILD_FLAGS": "-ldflags '-s -w'"
+    }
+  }
 }
-  
