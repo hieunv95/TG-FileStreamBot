@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 )
@@ -44,8 +45,11 @@ func getFileDirectLink(fileID string) (string, error) {
 		} `json:"result"`
 	}
 
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil || !result.OK {
-		return "", fmt.Errorf("failed to get file path")
+	body, _ := io.ReadAll(resp.Body) // Debug API response
+	fmt.Println("Telegram getFile response:", string(body))
+
+	if err := json.Unmarshal(body, &result); err != nil || !result.OK {
+		return "", fmt.Errorf("failed to get file path: %s", string(body))
 	}
 
 	// Trả về link trực tiếp
@@ -53,15 +57,23 @@ func getFileDirectLink(fileID string) (string, error) {
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
+	// Đọc toàn bộ request body để debug
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Failed to read request body", http.StatusInternalServerError)
+		return
+	}
+	fmt.Println("Received request body:", string(body))
+
 	var update TelegramUpdate
-	if err := json.NewDecoder(r.Body).Decode(&update); err != nil {
-		http.Error(w, "Invalid request", http.StatusBadRequest)
+	if err := json.Unmarshal(body, &update); err != nil {
+		http.Error(w, fmt.Sprintf("Invalid request JSON: %v\nBody: %s", err, string(body)), http.StatusBadRequest)
 		return
 	}
 
 	// Kiểm tra tin nhắn có chứa file không
 	if update.Message.Document.FileID == "" || update.Message.ForwardFromChat.ID == 0 {
-		http.Error(w, "No forwarded file found", http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf("No forwarded file found\nReceived: %+v", update), http.StatusBadRequest)
 		return
 	}
 
@@ -75,7 +87,15 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	// Gửi link về Telegram
 	botToken := os.Getenv("BOT_TOKEN")
 	sendURL := fmt.Sprintf("%s%s/sendMessage?chat_id=%d&text=%s", telegramAPI, botToken, update.Message.Chat.ID, fileURL)
-	http.Get(sendURL)
+	resp, err := http.Get(sendURL)
+	if err != nil {
+		fmt.Println("Failed to send message:", err)
+	}
+	defer resp.Body.Close()
+
+	// Debug Telegram sendMessage response
+	body, _ = io.ReadAll(resp.Body)
+	fmt.Println("Telegram sendMessage response:", string(body))
 
 	// Phản hồi Vercel
 	w.Header().Set("Content-Type", "application/json")
