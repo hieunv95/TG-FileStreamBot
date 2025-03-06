@@ -67,12 +67,14 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	var update TelegramUpdate
 	if err := json.Unmarshal(body, &update); err != nil {
+		fmt.Println("Invalid request JSON")
 		http.Error(w, fmt.Sprintf("Invalid request JSON: %v\nBody: %s", err, string(body)), http.StatusBadRequest)
 		return
 	}
 
 	// Kiểm tra tin nhắn có chứa file không
 	if update.Message.Document.FileID == "" || update.Message.ForwardFromChat.ID == 0 {
+		fmt.Println("No forwarded file found")
 		http.Error(w, fmt.Sprintf("No forwarded file found\nReceived: %+v", update), http.StatusBadRequest)
 		return
 	}
@@ -80,6 +82,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	// Lấy link tải trực tiếp
 	fileURL, err := getFileDirectLink(update.Message.Document.FileID)
 	if err != nil {
+		fmt.Println("Error getFileDirectLink")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
