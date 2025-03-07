@@ -56,9 +56,3 @@ func debugHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(response))
 }
-
-func main() {
-	http.HandleFunc("/", debugHandler)
-	log.Println("🛠 Debug server running on port 8080...")
-	log.Fatal(http.ListenAndServe(":8080", nil))
-}
