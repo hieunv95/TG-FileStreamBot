@@ -2,7 +2,6 @@ package handler
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"log"

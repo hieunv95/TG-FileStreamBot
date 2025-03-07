@@ -1,11 +1,21 @@
 {
+  "env": {
+    "CGO_CFLAGS": "-I/home/vercel/tdlib/include",
+    "CGO_LDFLAGS": "-L/home/vercel/tdlib/lib -ltdjson"
+  },
   "build": {
     "env": {
       "GO_BUILD_FLAGS": "-ldflags '-s -w'"
     }
   },
   "rewrites": [
-    { "source": "/", "destination": "/api/" },
-    { "source": "/:path*", "destination": "/api/:path*" }
+    {
+      "src": "/webhook",
+      "dest": "api/webhook.go"
+    },
+    {
+      "src": "/file/(.*)",
+      "dest": "api/file.go"
+    }
   ]
 }

@@ -1,0 +1,9 @@
+prefix=/workspaces/tdlib
+
+Name: tdapi
+Description: Telegram Library - API
+Version: 1.8.45
+
+CFlags: -I"${prefix}/include"
+Libs: -L"${prefix}/lib" -ltdapi
+Requires.private: tdutils
