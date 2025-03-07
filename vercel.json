@@ -20,13 +20,7 @@
     }
   ],
   "routes": [
-    {
-      "src": "/webhook",
-      "dest": "api/webhook.go"
-    },
-    {
-      "src": "/file/(.*)",
-      "dest": "api/file.go"
-    }
+    { "src": "/api/webhook", "dest": "/vercel/output/webhook" },
+    { "src": "/api/file", "dest": "/vercel/output/file" }
   ]
 }

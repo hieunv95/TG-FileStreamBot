@@ -16,7 +16,15 @@ export CGO_ENABLED=1
 export CGO_CFLAGS="-I/tmp/tdlib/include"
 export CGO_LDFLAGS="-L/tmp/tdlib/lib -ltdjson"
 
-# Build ứng dụng
-echo "🔧 Đang biên dịch ứng dụng..."
-go build -o /vercel/output/server ./cmd/main.go
-echo "✅ Build thành công!"
+# Tạo thư mục output cho Vercel
+mkdir -p /vercel/output
+
+# Build webhook.go
+echo "🔧 Đang biên dịch webhook.go..."
+go build -o /vercel/output/webhook api/webhook.go
+echo "✅ Build webhook.go thành công!"
+
+# Build file.go
+echo "🔧 Đang biên dịch file.go..."
+go build -o /vercel/output/file api/file.go
+echo "✅ Build file.go thành công!"
