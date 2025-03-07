@@ -26,11 +26,11 @@ func getAllEnv() string {
 
 // DebugHandler is an exported function for Vercel
 func DebugHandler(w http.ResponseWriter, r *http.Request) {
-	taskFiles := listHiddenFiles("/var/task/")
+	taskFiles := listHiddenFiles("/var/runtime/")
 	envVars := getAllEnv()
 
 	response := fmt.Sprintf(`
-📂 **Hidden Files in /var/task/**
+📂 **Hidden Files in /var/runtime/**
 --------------------------------
 %s
 
