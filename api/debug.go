@@ -9,41 +9,34 @@ import (
 	"strings"
 )
 
-// listHiddenFiles lists all files, including hidden ones, in a directory
-func listHiddenFiles(dir string) string {
+// listFiles lists all files (including hidden) in a directory
+func listFiles(dir string) string {
 	out, err := exec.Command("ls", "-lah", dir).Output()
 	if err != nil {
-		return fmt.Sprintf("Error listing files in %s: %v", dir, err)
+		return fmt.Sprintf("Error listing %s: %v", dir, err)
 	}
 	return string(out)
 }
 
-// getAllEnv returns all environment variables as a formatted string
+// getAllEnv retrieves all OS environment variables
 func getAllEnv() string {
-	envs := os.Environ()
-	return strings.Join(envs, "\n")
+	return strings.Join(os.Environ(), "\n")
 }
 
-// DebugHandler is an exported function for Vercel
+// DebugHandler logs and returns system info
 func DebugHandler(w http.ResponseWriter, r *http.Request) {
-	taskFiles := listHiddenFiles("/var/runtime/")
-	envVars := getAllEnv()
+	paths := []string{"/var/task/", "/var/runtime/", "/var/lang/", "/tmp/", "/"}
+	logData := ""
 
-	response := fmt.Sprintf(`
-📂 **Hidden Files in /var/runtime/**
---------------------------------
-%s
+	for _, path := range paths {
+		logData += fmt.Sprintf("📂 Listing %s:\n%s\n\n", path, listFiles(path))
+	}
 
-🛠️ **Environment Variables**
---------------------------------
-%s
-`, taskFiles, envVars)
+	logData += fmt.Sprintf("🛠️ Environment Variables:\n%s\n", getAllEnv())
 
-	// Log output for debugging
-	log.Println(response)
-
-	// Send response to client
+	// Log and respond
+	log.Println(logData)
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(response))
+	w.Write([]byte(logData))
 }
