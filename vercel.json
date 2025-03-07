@@ -1,14 +1,14 @@
 {
   "env": {
     "CGO_ENABLED": "1",
-    "CGO_CFLAGS": "-I/home/vercel/tdlib/include",
-    "CGO_LDFLAGS": "-L/home/vercel/tdlib/lib -ltdjson"
+    "CGO_CFLAGS": "-I/vercel/tdlib/include",
+    "CGO_LDFLAGS": "-L/vercel/tdlib/lib -ltdjson"
   },
   "build": {
     "env": {
       "CGO_ENABLED": "1",
-      "CGO_CFLAGS": "-I/home/vercel/tdlib/include",
-      "CGO_LDFLAGS": "-L/home/vercel/tdlib/lib -ltdjson",
+      "CGO_CFLAGS": "-I/vercel/tdlib/include",
+      "CGO_LDFLAGS": "-L/vercel/tdlib/lib -ltdjson",
       "GO_BUILD_FLAGS": "-ldflags '-s -w'"
     }
   },
