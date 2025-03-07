@@ -1,8 +1,8 @@
 {
   "env": {
     "CGO_ENABLED": "1",
-    "CGO_CFLAGS": "-I/home/vercel/tdlib/include",
-    "CGO_LDFLAGS": "-L/home/vercel/tdlib/lib -ltdjson -lcrypto -lssl"
+    "CGO_CFLAGS": "-I.vercel/output/static/tdlib/include",
+    "CGO_LDFLAGS": "-L.vercel/output/static/lib -ltdjson -lcrypto -lssl"
   },
   "build": {
     "env": {
