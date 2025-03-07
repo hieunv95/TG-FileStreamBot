@@ -19,6 +19,8 @@ export CGO_LDFLAGS="-L/home/vercel/tdlib/lib -ltdjson"
 # Tạo thư mục output cho Vercel
 mkdir -p /vercel/output
 
+go get github.com/zelenin/go-tdlib/client
+
 # Build webhook.go
 echo "🔧 Đang biên dịch webhook.go..."
 go build -o /vercel/output/webhook api/webhook.go
