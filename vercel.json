@@ -12,6 +12,11 @@
       "GO_BUILD_FLAGS": "-ldflags '-s -w'"
     }
   },
+  "builds":{
+    "src": "api/build.sh",
+    "use": "@vercel/static-build",
+    "config": { "distDir": "vercel/output" }
+  },
   "routes": [
     {
       "src": "/webhook",
