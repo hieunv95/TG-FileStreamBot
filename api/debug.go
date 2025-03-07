@@ -25,7 +25,7 @@ func getAllEnv() string {
 
 // DebugHandler logs and returns system info
 func DebugHandler(w http.ResponseWriter, r *http.Request) {
-	paths := []string{"/var/task/", "/var/runtime/", "/var/lang/", "/tmp/", "/"}
+	paths := []string{"/var/task/", "/var/runtime/", "/var/task/public", "/tmp/", "/"}
 	logData := ""
 
 	for _, path := range paths {
