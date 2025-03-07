@@ -20,10 +20,6 @@
     {
       "src": "/webhook",
       "dest": "api/webhook.go"
-    },
-    {
-      "src": "/file/(.*)",
-      "dest": "api/file.go"
     }
   ]
 }
