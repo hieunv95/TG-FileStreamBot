@@ -8,7 +8,7 @@
       "GO_BUILD_FLAGS": "-ldflags '-s -w'"
     }
   },
-  "rewrites": [
+  "routes": [
     {
       "src": "/webhook",
       "dest": "api/webhook.go"
