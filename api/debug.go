@@ -6,37 +6,35 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"strings"
 )
 
-// listFiles lists all files (including hidden) in a directory
-func listFiles(dir string) string {
-	out, err := exec.Command("ls", "-lah", dir).Output()
+// RunCommand executes shell commands and returns output
+func RunCommand(cmd string, args ...string) string {
+	out, err := exec.Command(cmd, args...).CombinedOutput()
 	if err != nil {
-		return fmt.Sprintf("Error listing %s: %v", dir, err)
+		return fmt.Sprintf("Error running %s: %v\nOutput: %s", cmd, err, out)
 	}
 	return string(out)
 }
 
-// getAllEnv retrieves all OS environment variables
-func getAllEnv() string {
-	return strings.Join(os.Environ(), "\n")
-}
-
-// DebugHandler logs and returns system info
+// DebugHandler checks file structure & logs env variables
 func DebugHandler(w http.ResponseWriter, r *http.Request) {
-	paths := []string{"/var/task/", "/var/runtime/", "/var/task/public", "/tmp/", "/"}
-	logData := ""
+	log.Println("🔍 Debug request received")
 
-	for _, path := range paths {
-		logData += fmt.Sprintf("📂 Listing %s:\n%s\n\n", path, listFiles(path))
+	// Log Environment Variables (NOT exposed to browser)
+	log.Println("🛠️ Environment Variables:")
+	for _, e := range os.Environ() {
+		log.Println(e)
 	}
 
-	logData += fmt.Sprintf("🛠️ Environment Variables:\n%s\n", getAllEnv())
+	// Check folders in /var/task (printed in browser)
+	output := "📂 Folder structure in /var/task:\n"
+	output += RunCommand("ls", "-lah", "/var/task") + "\n"
+	output += "📂 Folder structure in /var/task/public:\n"
+	output += RunCommand("ls", "-lah", "/var/task/public") + "\n"
 
-	// Log and respond
-	log.Println(logData)
+	// Send folder structure to browser
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(logData))
+	w.Write([]byte(output))
 }
