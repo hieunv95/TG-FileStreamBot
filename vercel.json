@@ -3,7 +3,7 @@
     "CGO_ENABLED": "1",
     "CGO_CFLAGS": "-I/vercel/path0/tdlib/include",
     "CGO_LDFLAGS": "-L/vercel/path0/tdlib/lib -ltdjson -lcrypto -lssl",
-    "LD_LIBRARY_PATH": "/var/task/tdlib/lib"
+    "LD_LIBRARY_PATH": "/vercel/path0/tdlib/lib"
   },
   "build": {
     "env": {
