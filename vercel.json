@@ -5,6 +5,8 @@
   },
   "build": {
     "env": {
+      "CGO_CFLAGS": "-I/home/vercel/tdlib/include",
+      "CGO_LDFLAGS": "-L/home/vercel/tdlib/lib -ltdjson",
       "GO_BUILD_FLAGS": "-ldflags '-s -w'"
     }
   },
