@@ -16,7 +16,7 @@ export CGO_ENABLED=1
 export CGO_CFLAGS="-I/vercel/tdlib/include"
 export CGO_LDFLAGS="-L/vercel/tdlib/lib -ltdjson"
 
-ls /vercel/
+ls /vercel/path0
 
 # Tạo thư mục output cho Vercel
 mkdir -p /vercel/output
