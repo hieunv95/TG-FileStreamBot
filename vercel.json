@@ -1,17 +1,4 @@
 {
-  "env": {
-    "CGO_ENABLED": "1",
-    "CGO_CFLAGS": "-I/vercel/output/static/tdlib/include",
-    "CGO_LDFLAGS": "-L/vercel/output/static/tdlib/lib -ltdjson -lcrypto -lssl"
-  },
-  "build": {
-    "env": {
-      "CGO_ENABLED": "1",
-      "CGO_CFLAGS": "-I/vercel/path0/tdlib/include",
-      "CGO_LDFLAGS": "-L/vercel/path0/tdlib/lib -ltdjson -lcrypto -lssl",
-      "GO_BUILD_FLAGS": "-ldflags '-s -w'"
-    }
-  },
   "routes": [
     {
       "src": "/debug",
