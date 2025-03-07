@@ -17,7 +17,8 @@ func listFiles(dir string) string {
 	return string(out)
 }
 
-func debugHandler(w http.ResponseWriter, r *http.Request) {
+// DebugHandler is the exported function for Vercel
+func DebugHandler(w http.ResponseWriter, r *http.Request) {
 	// Get current working directory
 	wd, _ := os.Getwd()
 
