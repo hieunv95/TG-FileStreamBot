@@ -13,10 +13,10 @@ fi
 
 # Thiết lập biến môi trường để dùng CGO
 export CGO_ENABLED=1
-export CGO_CFLAGS="-I/vercel/tdlib/include"
-export CGO_LDFLAGS="-L/vercel/tdlib/lib -ltdjson"
+export CGO_CFLAGS="-I/vercel/path0/tdlib/include"
+export CGO_LDFLAGS="-L/vercel/path0/tdlib/lib -ltdjson"
 
-ls /vercel/path0
+ls /vercel/path0/tdlib
 
 # Tạo thư mục output cho Vercel
 mkdir -p /vercel/output
