@@ -7,8 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-
-	"github.com/zelenin/go-tdlib/client"
 )
 
 // Lấy API ID, Hash và Bot Token từ biến môi trường
@@ -21,13 +19,21 @@ var (
 
 // Cấu trúc JSON nhận từ Webhook
 type Update struct {
-	Message struct {
-		Document struct {
-			FileID string `json:"file_id"`
-		} `json:"document"`
-		Chat struct {
-			ID int64 `json:"id"`
+	UpdateID int `json:"update_id"`
+	Message  struct {
+		MessageID int    `json:"message_id"`
+		Text      string `json:"text"`
+		Chat      struct {
+			ID   int64  `json:"id"`
+			Type string `json:"type"`
 		} `json:"chat"`
+		Document *struct { // Thêm field Document để chứa thông tin file
+			FileID       string `json:"file_id"`
+			FileUniqueID string `json:"file_unique_id"`
+			FileName     string `json:"file_name"`
+			MimeType     string `json:"mime_type"`
+			FileSize     int    `json:"file_size"`
+		} `json:"document,omitempty"` // `omitempty` để bỏ qua nếu không có file
 	} `json:"message"`
 }
 
