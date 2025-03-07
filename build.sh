@@ -1,6 +1,16 @@
 #!/bin/sh
 set -e  # Dừng nếu có lỗi
 
+# Cài đặt Go nếu chưa có
+if ! command -v go &> /dev/null
+then
+    echo "⏳ Đang cài đặt Go..."
+    curl -LO https://go.dev/dl/go1.21.5.linux-amd64.tar.gz
+    tar -C /usr/local -xzf go1.21.5.linux-amd64.tar.gz
+    export PATH=$PATH:/usr/local/go/bin
+    echo "✅ Go đã được cài đặt!"
+fi
+
 # Thiết lập biến môi trường để dùng CGO
 export CGO_ENABLED=1
 export CGO_CFLAGS="-I/home/vercel/tdlib/include"
