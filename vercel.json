@@ -14,7 +14,7 @@
   },
   "builds": [
     {
-    "src": "api/build.sh",
+    "src": "build.sh",
     "use": "@vercel/static-build",
     "config": { "distDir": "vercel/output" }
     }
